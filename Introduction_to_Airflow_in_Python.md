@@ -1,6 +1,27 @@
+-----------------------------------------------------
 # Introduction to Airflow in Python	
+------------------------------------------------------
 
+# Chapter 1: Intro to Airflow
 
+## Defining a simple DAG
+```
+# Import the DAG object
+from airflow.models import DAG
+```
+
+## Troubleshooting DAG creation
+in `refresh_data_workflow.py`:
+```
+from airflow.models import DAG
+default_args = {
+  'owner': 'jdoe',
+  'email': 'jdoe@datacamp.com'
+}
+dag = DAG( 'refresh_data', default_args=default_args )
+```
+
+# Chapter 2: Implementing Airflow DAGs
 
 ## Defining a BashOperator task
 
@@ -157,10 +178,33 @@ email_manager_task = EmailOperator(
 pull_file_task >> parse_file_task >> email_manager_task
 ```
 
-## 
+##  Schedule a DAG via Python
 ```py
-x
+# Update the scheduling arguments as defined
+default_args = {
+  'owner': 'Engineering',
+  'start_date': datetime(2019, 11, 1),
+  'email': ['airflowresults@datacamp.com'],
+  'email_on_failure': False,
+  'email_on_retry': False,
+  'retries': 3,
+  'retry_delay': timedelta(minutes=20)
+}
+
+dag = DAG('update_dataflows', default_args=default_args, schedule_interval='30 12 * * 3')
 ```
+
+## Deciphering Airflow schedules
+1. `*****`
+2. `timedelta(minutes=5)`
+3. `@hourly`
+4. `*0,12***`
+5. `timedelta(days=1)`
+6. `@weekly`
+
+
+
+# Chapter 3: Maintaining and monitoring Airflow workflows
 
 ## 
 ```py
@@ -172,8 +216,5 @@ x
 x
 ```
 
-## 
-```py
-x
-```
+# Chapter 4: Building production pipelines in Airflow
 
