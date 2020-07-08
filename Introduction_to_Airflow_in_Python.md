@@ -313,13 +313,14 @@ cleandata_dag = DAG('cleandata',
 
 # Create a templated command to execute
 # 'bash cleandata.sh datestring'
-
+templated_command = """
+bash cleandata.sh {{ ds_nodash }}
+"""
 
 # Modify clean_task to use the templated command
-templated_command = BashOperator(task_id='cleandata_task',
-                          bash_command='bash cleandata.sh',
+clean_task = BashOperator(task_id='cleandata_task',
+                          bash_command=templated_command,
                           dag=cleandata_dag)
-
 ```
 
 
