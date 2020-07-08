@@ -206,15 +206,93 @@ dag = DAG('update_dataflows', default_args=default_args, schedule_interval='30 1
 
 # Chapter 3: Maintaining and monitoring Airflow workflows
 
-## 
+## Sensors vs operators
+
+|     **Sensors**                    | **Both**                  | **Operators**                   |
+|:----------------------------------:|:-------------------------:|--------------------------------:|
+| has a `poke_interval` attribute.  | Are assigned to DGAs.    | `BashOperator`                    |
+| Derives from `BaseSensorOperator`.| Have a `task_id`.       | Only runs once per DAG run.       |
+| `FileSnsor`              |
+
+
+
+## Executor implications
+Step 1: in `execute_report_dag.py`, line 15:
 ```py
-x
+    mode='reschedule',
+```
+Step 2: in command line, run `airflow list_dags `
+
+
+
+## Missing DGA
+Step 1: Delete `#` in line 2, in order to convert the line from comment to code 
+
+Step 2: save `execute_report_dag.py` in  workspace/drags
+
+Step 3: In command line, execute `airflow list_drags` to verify that the `.py` is stored in the drags folder
+
+
+## Defining a SLA
+
+
+```py
+# Import the timedelta object
+from datetime import timedelta
+
+# Create the dictionary entry
+default_args = {
+  'start_date': datetime(2020, 2, 20),
+  'sla': timedelta(minutes=30)
+}
+
+# Add to the DAG
+test_dag = DAG('test_workflow', default_args=default_args, schedule_interval='@None')
 ```
 
-## 
+## Defining a task SLA
 ```py
-x
+# Import the timedelta object
+from datetime import timedelta
+
+test_dag = DAG('test_workflow', start_date=datetime(2020,2,20), schedule_interval='@None')
+
+# Create the task with the SLA
+task1 = BashOperator(task_id='first_task',
+                     sla=timedelta(hours=3),
+                     bash_command='initialize_data.sh',
+                     dag=test_dag)
 ```
+
+## Generate and email a report
+```py
+# Define the email task
+email_report = EmailOperator(
+        task_id='email_report',
+        to='airflow@datacamp.com',
+        subject='Airflow Monthly Report',
+        html_content="""Attached is your monthly workflow report - please refer to it for more detail""",
+        files=['monthly_report.pdf'],
+        dag=report_dag
+)
+
+# Set the email task to run after the report is generated
+email_report << generate_report
+```
+
+
+## Adding status email
+In `execute_report_dag.py` the `default_args` should be:
+```py
+default_args={
+    'email': ['airflowalerts@datacamp.com', 'airflowadmin@datacamp.com'],
+    'email_on_failure': True,
+    'email_on_success': True
+}
+```
+
+
 
 # Chapter 4: Building production pipelines in Airflow
 
+Available in soon, wait for it ... 
